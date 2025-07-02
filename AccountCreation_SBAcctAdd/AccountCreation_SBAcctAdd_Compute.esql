@@ -1,0 +1,168 @@
+
+DECLARE ns NAMESPACE 'http://webservice.fiusb.ci.infosys.com';
+CREATE COMPUTE MODULE AccountCreation_SBAcctAdd_Request
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+	
+		
+		--SET Environment.variables.gbl= InputRoot.XMLNSC.FIXML;
+		DECLARE inRef REFERENCE TO InputRoot.JSON.Data;
+		SET Environment.variables.gbl = inRef.RequestUUID;
+		DECLARE xsi NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+		SET OutputRoot.XMLNSC.FIXML.(XMLNSC.Attribute)xsi:schemaLocation 		='http://www.finacle.com/fixml  SBAcctAdd.xsd';
+		SET OutputRoot.XMLNSC.FIXML.Header.RequestHeader.MessageKey.RequestUUID = inRef.RequestUUID; 
+		DECLARE outputRefHdr REFERENCE TO OutputRoot.XMLNSC.FIXML.Header.RequestHeader ;
+		SET outputRefHdr.MessageKey.ServiceRequestId 			= 'SBAcctAdd' ;
+		SET outputRefHdr.MessageKey.ServiceRequestVersion 		= '10.2';
+		SET outputRefHdr.MessageKey.ChannelId 					=inRef.ChannelId; 
+		SET outputRefHdr.MessageKey.LanguageId 					= '';
+		SET outputRefHdr.RequestMessageInfo.BankId 				= '' ;
+		SET outputRefHdr.RequestMessageInfo.TimeZone 			= '';
+		SET outputRefHdr.RequestMessageInfo.EntityId 			= '';
+		SET outputRefHdr.RequestMessageInfo.EntityType 			= '';
+		SET outputRefHdr.RequestMessageInfo.ArmCorrelationId 	='';
+		SET outputRefHdr.RequestMessageInfo.MessageDateTime 	= CURRENT_TIMESTAMP ;
+		SET outputRefHdr.Reversal.ParentRequestUUID 			= '';
+		SET outputRefHdr.Security.Token.PasswordToken.UserId 	= '';
+		SET outputRefHdr.Security.Token.PasswordToken.Password 	= '';
+		SET outputRefHdr.Security.FICertToken 					= '';
+		SET outputRefHdr.Security.RealUserLoginSessionId 		= '';
+		SET outputRefHdr.Security.RealUser 						= '';
+		SET outputRefHdr.Security.RealUserPwd 					= '';
+		SET outputRefHdr.Security.SSOTransferToken 				= '';
+		SET outputRefHdr.CustomInfo.table.key 					= '';
+		SET outputRefHdr.CustomInfo.table.value 				='';
+
+		
+		
+		CREATE FIELD OutputRoot.XMLNSC.FIXML.Body.SBAcctAddRequest.SBAcctAddRq;
+		CREATE FIELD OutputRoot.XMLNSC.FIXML.Body.SBAcctAddRequest.SBAcctAdd_CustomData;
+		
+		DECLARE outRefSBAcctAddRq REFERENCE TO OutputRoot.XMLNSC.FIXML.Body.SBAcctAddRequest.SBAcctAddRq;
+		DECLARE outRefSBAcctAdd_CustomData REFERENCE TO OutputRoot.XMLNSC.FIXML.Body.SBAcctAddRequest.SBAcctAdd_CustomData;
+		
+		
+		SET outRefSBAcctAddRq.CustId.CustId = inRef.CustID; 
+		SET outRefSBAcctAddRq.SBAcctId.AcctId = inRef.acctNum;  
+		SET outRefSBAcctAddRq.SBAcctId.AcctType.SchmCode = inRef.SchmCode;--'SBMIC'; 
+		SET outRefSBAcctAddRq.SBAcctId.AcctType.SchmType = 'SBA';  
+		SET outRefSBAcctAddRq.SBAcctId.AcctCurr = 'INR';  
+		
+		
+	 
+		SET outRefSBAcctAddRq.SBAcctGenInfo.AcctName = inRef.AcctName; 
+		SET outRefSBAcctAddRq.SBAcctGenInfo.AcctShortName = inRef.AcctShortName; 
+		SET outRefSBAcctAddRq.SBAcctGenInfo.AcctStmtMode = 'S'; 
+		
+		
+		
+		
+		SET outRefSBAcctAddRq.SBAcctGenInfo.AcctStmtFreq.Cal = '00'; 
+		SET outRefSBAcctAddRq.SBAcctGenInfo.AcctStmtFreq.Type = 'Y'; --'Q'; 
+		SET outRefSBAcctAddRq.SBAcctGenInfo.AcctStmtFreq.StartDt = '31';
+		SET outRefSBAcctAddRq.SBAcctGenInfo.AcctStmtFreq.WeekDay = '';  
+		SET outRefSBAcctAddRq.SBAcctGenInfo.AcctStmtFreq.WeekNum = '';
+		SET outRefSBAcctAddRq.SBAcctGenInfo.AcctStmtFreq.HolStat = 'N';--'P';
+		
+
+
+		SET outRefSBAcctAddRq.SBAcctGenInfo.AcctStmtNxtPrintDt = inRef.AcctStmtNxtPrintDt; 
+		SET outRefSBAcctAddRq.SBAcctGenInfo.DespatchMode = 'S'; 
+		
+		
+		
+		SET outRefSBAcctAddRq.NomineeInfoRec.RegNum = inRef.RegNum; 
+		SET outRefSBAcctAddRq.NomineeInfoRec.NomineeName = inRef.NomineeName; 
+		SET outRefSBAcctAddRq.NomineeInfoRec.RelType = inRef.RelType;
+		
+		SET outRefSBAcctAddRq.NomineeInfoRec.NomineeContactInfo.PostAddr.Addr1 = inRef.PostAddr.Addr1;
+		SET outRefSBAcctAddRq.NomineeInfoRec.NomineeContactInfo.PostAddr.Addr2 = inRef.PostAddr.Addr2; 
+		SET outRefSBAcctAddRq.NomineeInfoRec.NomineeContactInfo.PostAddr.City = inRef.PostAddr.City; 
+		SET outRefSBAcctAddRq.NomineeInfoRec.NomineeContactInfo.PostAddr.StateProv = inRef.PostAddr.StateProv; 
+		SET outRefSBAcctAddRq.NomineeInfoRec.NomineeContactInfo.PostAddr.PostalCode = inRef.PostAddr.PostalCode;
+		SET outRefSBAcctAddRq.NomineeInfoRec.NomineeContactInfo.PostAddr.Country = inRef.PostAddr.Country;
+		
+		
+		SET outRefSBAcctAddRq.NomineeInfoRec.NomineeMinorFlg = inRef.NomineeMinorFlg; 
+		SET outRefSBAcctAddRq.NomineeInfoRec.NomineePercent.value = '100'; 
+		
+		
+		IF EXISTS(inRef.relativeFlg[]) THEN
+		SET outRefSBAcctAdd_CustomData.relativeFlg = inRef.relativeFlg;
+		END IF;
+		
+		IF EXISTS(inRef.relativeStaffId[]) THEN
+		SET outRefSBAcctAdd_CustomData.relativeStaffId = inRef.relativeStaffId;
+		END IF;
+		
+		SET outRefSBAcctAdd_CustomData.INTCRACCTFLG = 'S';
+		SET outRefSBAcctAdd_CustomData.SOL = inRef.SOL; 
+		SET outRefSBAcctAdd_CustomData.INTDRACCTFLG = 'S';
+		SET outRefSBAcctAdd_CustomData.CAL = 'N';
+		
+		--SET outRefSBAcctAdd_CustomData.FREE_CODE_4 =  'TAB2'; -- inRef.ChannelId; --DOUBT
+		SET outRefSBAcctAdd_CustomData.FREE_CODE_4 =  inRef.freeCode4;   -- changes done on 25-11-2022
+		SET outRefSBAcctAdd_CustomData.FREE_CODE_8 =  inRef.freeCode8;   -- changes done on 25-11-2022
+		
+		SET outRefSBAcctAdd_CustomData.FREE_CODE_10 =inRef.c5Code;--'BN'; --'OD'; --DOUBT
+		SET outRefSBAcctAdd_CustomData.APPLN_REF_NUM = inRef.APPLN_REF_NUM;
+		SET outRefSBAcctAdd_CustomData.MISCFLG = '1';  
+		
+		
+		
+		SET outRefSBAcctAdd_CustomData.CR_INT_TYPE = 'Q'; 
+		SET outRefSBAcctAdd_CustomData.CR_INT_WEEK_DAY = '0';
+		SET outRefSBAcctAdd_CustomData.CR_INT_START_DT = '31';
+		SET outRefSBAcctAdd_CustomData.CR_INT_HOL_ST = 'P';
+		SET outRefSBAcctAdd_CustomData.CR_INT_CAL_TYPE = '00';
+		SET outRefSBAcctAdd_CustomData.CR_INT_NXT_RUN_DT = inRef.CR_INT_NXT_RUN_DT;  
+		SET outRefSBAcctAdd_CustomData.MODE_OF_OPR = '009';
+		
+		RETURN TRUE;
+	END;
+
+	END MODULE;
+	
+	
+	CREATE COMPUTE MODULE ConvertToRespXml_FinResponse
+	
+CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	DECLARE inputRefResBody REFERENCE TO InputRoot.XMLNSC.FIXML.Body;
+		IF InputRoot.XMLNSC.FIXML.Header.ResponseHeader.HostTransaction.Status = 'SUCCESS' THEN
+			SET OutputRoot.JSON.Data.Status = InputRoot.XMLNSC.FIXML.Header.ResponseHeader.HostTransaction.Status;
+			SET OutputRoot.JSON.Data.AcctId = inputRefResBody.SBAcctAddResponse.SBAcctAddRs.SBAcctId.AcctId;
+		ELSE
+			IF EXISTS(InputRoot.XMLNSC.FIXML.Body.Error[]) THEN
+				SET OutputRoot.JSON.Data.Status = InputRoot.XMLNSC.FIXML.Header.ResponseHeader.HostTransaction.Status;
+			IF EXISTS (InputRoot.XMLNSC.FIXML.Body.Error.FIBusinessException[]) THEN
+				SET OutputRoot.JSON.Data.ErrorCode = InputRoot.XMLNSC.FIXML.Body.Error.FIBusinessException.ErrorDetail.ErrorCode;
+				SET OutputRoot.JSON.Data.ErrorDesc = InputRoot.XMLNSC.FIXML.Body.Error.FIBusinessException.ErrorDetail.ErrorDesc;
+		ELSE
+				SET OutputRoot.JSON.Data = InputRoot.XMLNSC.FIXML.Body.Error.FISystemException;
+				END IF ;
+		ELSE
+				SET OutputRoot.JSON.Data.Status  = InputRoot.XMLNSC.FIXML.Header.ResponseHeader.HostTransaction.Status;
+				SET OutputRoot.JSON.Data  		 = inputRefResBody.inputRefResBody;
+				END IF ;
+				END IF ;
+	
+				RETURN TRUE;
+				END;
+				END MODULE;
+				
+				
+CREATE COMPUTE MODULE ErrorHandling
+	
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE exceptionMessage CHARACTER Common.ParseExcepListToText(InputExceptionList);
+			SET OutputRoot.JSON.Data.status 		=  'FAILURE';
+			SET OutputRoot.JSON.Data.errorCode = 'Error';
+			SET OutputRoot.JSON.Data.errorDesc = exceptionMessage;
+		
+			RETURN TRUE;
+		END;
+END MODULE;
+	
