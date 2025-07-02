@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="project" default="build">
+	<property file = "build.properties"/>
+	<property name = "datadir" location ="../../" />
+	<target name="build">
+		<echo message="Building bar..." />
+		<echo message="${datadir}" />
+		<echo message="${datadir}\${foldername}\${bar.name}" />
+		<echo message="${appname}" />
+		<exec executable="${iib.toolkit}\mqsicreatebar">
+  			<arg value="-data" />
+			<arg value="${datadir}" />
+			<arg value="-b" />
+			<arg value="${datadir}\${foldername}\${bar.name}" />
+			<arg value = "-cleanBuild"/>
+			<arg value="-a" />
+			<arg value="${appname}" />
+			<arg value="-deployAsSource" />
+		</exec>
+		<echo message="Bar builded...." />
+	</target>
+</project>

@@ -1,0 +1,122 @@
+DECLARE ns NAMESPACE 'http://webservice.fiusb.ci.infosys.com';
+
+CREATE COMPUTE MODULE ConvertToFincaleXml
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.variables.gbl= InputRoot.JSON.Data.RequestUUID;
+		DECLARE xsi NAMESPACE 'http://www.w3.org/2001/XMLSchema-instance';
+		SET OutputRoot.XMLNSC.FIXML.(XMLNSC.Attribute)xsi:schemaLocation 		='http://www.finacle.com/fixml  BalInq.xsd';
+		SET OutputRoot.XMLNSC.FIXML.Header.RequestHeader.MessageKey.RequestUUID = InputRoot.JSON.Data.RequestUUID;
+		DECLARE outputRefHdr REFERENCE TO OutputRoot.XMLNSC.FIXML.Header.RequestHeader ;
+		SET outputRefHdr.MessageKey.ServiceRequestId 			= 'BalInq' ;
+		SET outputRefHdr.MessageKey.ServiceRequestVersion 		= '10.2';
+		SET outputRefHdr.MessageKey.ChannelId 					= InputRoot.JSON.Data.ChannelId;
+		SET outputRefHdr.MessageKey.LanguageId 					= '';
+		SET outputRefHdr.RequestMessageInfo.BankId 				= '' ;
+		SET outputRefHdr.RequestMessageInfo.TimeZone 			= '';
+		SET outputRefHdr.RequestMessageInfo.EntityId 			= '';
+		SET outputRefHdr.RequestMessageInfo.EntityType 			= '';
+		SET outputRefHdr.RequestMessageInfo.ArmCorrelationId 	='';
+		SET outputRefHdr.RequestMessageInfo.MessageDateTime 	= CURRENT_TIMESTAMP ;
+		SET outputRefHdr.Reversal.ParentRequestUUID 			= '';
+		SET outputRefHdr.Security.Token.PasswordToken.UserId 	= '';
+		SET outputRefHdr.Security.Token.PasswordToken.Password 	= '';
+		SET outputRefHdr.Security.FICertToken 					= '';
+		SET outputRefHdr.Security.RealUserLoginSessionId 		= '';
+		SET outputRefHdr.Security.RealUser 						= '';
+		SET outputRefHdr.Security.RealUserPwd 					= '';
+		SET outputRefHdr.Security.SSOTransferToken 				= '';
+		SET outputRefHdr.CustomInfo.table.key 					= '';
+		SET outputRefHdr.CustomInfo.table.value 				='';
+		SET OutputRoot.XMLNSC.FIXML.BalInqRequest.BalInqRq.AcctId.AcctId = InputRoot.JSON.Data.AcctId;
+		
+		
+
+	RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE ConvertToRespXml
+	
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE inputRefResBody REFERENCE TO InputRoot.XMLNSC.FIXML.Body;
+ 					IF InputRoot.XMLNSC.FIXML.Header.ResponseHeader.HostTransaction.Status = 'SUCCESS' THEN
+              SET OutputRoot.JSON.Data.Status 	  = InputRoot.XMLNSC.FIXML.Header.ResponseHeader.HostTransaction.Status;
+              SET OutputRoot.JSON.Data.AcctId		  = inputRefResBody.BalInqResponse.BalInqRs.AcctId.AcctId;
+              
+              DECLARE i,count INTEGER 1;
+              DECLARE Ref REFERENCE TO inputRefResBody.BalInqResponse.BalInqRs.AcctBal[i];
+              SET count = CARDINALITY(inputRefResBody.BalInqResponse.BalInqRs.AcctBal[]);
+              WHILE (i <= count) DO
+              if inputRefResBody.BalInqResponse.BalInqRs.AcctBal[i].BalType = 'AVAIL' then
+              	SET OutputRoot.JSON.Data.Bal = inputRefResBody.BalInqResponse.BalInqRs.AcctBal[i].BalAmt.amountValue;
+              	SET OutputRoot.JSON.Data.CurrencyCode = inputRefResBody.BalInqResponse.BalInqRs.AcctBal[i].BalAmt.currencyCode;
+              	SET OutputRoot.JSON.Data.BlaType = 'AVAIL';
+
+
+--SET OutputRoot.JSON.Data = inputRefResBody.BalInqResponse.BalInqRs;
+--SET OutputRoot.JSON.Data.Response.Status 	  = InputRoot.XMLNSC.FIXML.Header.ResponseHeader.HostTransaction.Status;
+SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 200;
+              end if;
+              SET i = i + 1;
+						END WHILE;
+						
+            
+          			ELSE
+         		 	IF EXISTS(InputRoot.XMLNSC.FIXML.Body.Error[]) THEN
+         		 		
+             -- SET OutputRoot.XMLNSC.Response.Header.Status 	  = InputRoot.XMLNSC.FIXML.Header.ResponseHeader.HostTransaction.Status;
+              SET OutputRoot.JSON.Data.Status 	  = InputRoot.XMLNSC.FIXML.Header.ResponseHeader.HostTransaction.Status;
+             
+         	    	IF EXISTS (InputRoot.XMLNSC.FIXML.Body.Error.FIBusinessException[]) THEN
+         	    		
+--              SET OutputRoot.XMLNSC.Response.Header.errorCode = InputRoot.XMLNSC.FIXML.Body.Error.FIBusinessException.ErrorDetail.ErrorCode;
+--              SET OutputRoot.XMLNSC.Response.Header.errorDesc = InputRoot.XMLNSC.FIXML.Body.Error.FIBusinessException.ErrorDetail.ErrorDesc;
+
+
+					SET OutputRoot.JSON.Data.errorCode = InputRoot.XMLNSC.FIXML.Body.Error.FIBusinessException.ErrorDetail.ErrorCode;
+					SET OutputRoot.JSON.Data.errorCode = InputRoot.XMLNSC.FIXML.Body.Error.FIBusinessException.ErrorDetail.ErrorDesc;
+					SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 400;
+           			ELSE
+--              SET OutputRoot.XMLNSC.Response.Header.errorCode = InputRoot.XMLNSC.FIXML.Body.Error.FISystemException.ErrorDetail.ErrorCode;
+--              SET OutputRoot.XMLNSC.Response.Header.errorDesc = InputRoot.XMLNSC.FIXML.Body.Error.FISystemException.ErrorDetail.ErrorDesc;
+
+SET OutputRoot.JSON.Data.errorCode = InputRoot.XMLNSC.FIXML.Body.Error.FISystemException.ErrorDetail.ErrorCode;
+SET OutputRoot.JSON.Data.errorDesc = InputRoot.XMLNSC.FIXML.Body.Error.FISystemException.ErrorDetail.ErrorDesc;
+SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 400;
+          		   END IF ;
+          		   ELSE
+              
+              SET OutputRoot.JSON.Data 			= inputRefResBody;
+              SET OutputRoot.JSON.Data.Status 	 = InputRoot.XMLNSC.FIXML.Header.ResponseHeader.HostTransaction.Status;
+              SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 400;
+            	  END IF ;
+                  END IF ;
+                  
+				  RETURN TRUE;
+				  END;
+				  END MODULE;
+CREATE COMPUTE MODULE ErrorHandling
+	
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE exceptionMessage CHARACTER Common.ParseExcepListToText(InputExceptionList);
+		--SET OutputRoot.XMLNSC.Response.Header.status 		=  'FAILURE';
+--			SET OutputRoot.XMLNSC.Response.Header.errorCode = 'Error';
+--			SET OutputRoot.XMLNSC.Response.Header.errorDesc = exceptionMessage;
+SET OutputRoot.JSON.Data.status = 'FAILURE';
+SET OutputRoot.JSON.Data.errorCode = 'Error';
+SET OutputRoot.JSON.Data.errorDesc =exceptionMessage;
+
+
+IF CONTAINS(exceptionMessage,'ParserException') THEN
+	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 400;
+ELSE
+
+SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 500;
+
+END IF;
+			RETURN TRUE;
+		END;
+END MODULE;
