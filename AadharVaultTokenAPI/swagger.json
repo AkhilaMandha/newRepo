@@ -1,0 +1,270 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "title" : "AadharVaultTokenAPI",
+    "version" : "1.0.0",
+    "description" : "AadharVaultTokenAPI"
+  },
+  "paths" : {
+    "/aadhar" : {
+      "post" : {
+        "operationId" : "Aadhar",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful.",
+            "schema" : {
+              "$ref" : "#/definitions/AadharResponse"
+            }
+          },
+          "500" : {
+            "description" : "Error Response",
+            "schema" : {
+              "$ref" : "#/definitions/errorRes"
+            }
+          }
+        },
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "description" : "Insert a aadhar",
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "schema" : {
+            "$ref" : "#/definitions/AadharRequest"
+          },
+          "description" : "The request body for the operation",
+          "required" : true
+        } ]
+      }
+    },
+    "/vaultToken" : {
+      "post" : {
+        "operationId" : "VaultToken",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful.",
+            "schema" : {
+              "$ref" : "#/definitions/VaultTokenResponse"
+            }
+          },
+          "500" : {
+            "description" : "Error Response",
+            "schema" : {
+              "$ref" : "#/definitions/errorRes"
+            }
+          }
+        },
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "description" : "Insert a vaulttoken",
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "schema" : {
+            "$ref" : "#/definitions/VaultTokenRequest"
+          },
+          "description" : "The request body for the operation",
+          "required" : true
+        } ]
+      }
+    }
+  },
+  "basePath" : "/aadhar/vault/v1",
+  "definitions" : {
+    "VaultTokenRequest" : {
+      "type" : "object",
+      "properties" : {
+        "request" : {
+          "type" : "object",
+          "properties" : {
+            "header" : {
+              "$ref" : "#/definitions/reqheader"
+            },
+            "body" : {
+              "type" : "object",
+              "properties" : {
+                "vaultTokenReq" : {
+                  "$ref" : "#/definitions/VaultTokenReq"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "VaultTokenResponse" : {
+      "type" : "object",
+      "properties" : {
+        "response" : {
+          "type" : "object",
+          "properties" : {
+            "header" : {
+              "$ref" : "#/definitions/resheader"
+            },
+            "body" : {
+              "type" : "object",
+              "properties" : {
+                "vaultRes" : {
+                  "type" : "object",
+                  "properties" : {
+                    "return" : {
+                      "type" : "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "reqheader" : {
+      "type" : "object",
+      "properties" : {
+        "requestUUID" : {
+          "type" : "string"
+        },
+        "channelId" : {
+          "type" : "string"
+        }
+      }
+    },
+    "resheader" : {
+      "type" : "object",
+      "properties" : {
+        "requestUUID" : {
+          "type" : "string"
+        },
+        "channelId" : {
+          "type" : "string"
+        },
+        "status" : {
+          "type" : "string"
+        }
+      }
+    },
+    "error" : {
+      "type" : "object",
+      "properties" : {
+        "errorCode" : {
+          "type" : "string"
+        },
+        "errorDesc" : {
+          "type" : "string"
+        }
+      }
+    },
+    "errorRes" : {
+      "type" : "object",
+      "properties" : {
+        "response" : {
+          "type" : "object",
+          "properties" : {
+            "header" : {
+              "$ref" : "#/definitions/resheader"
+            },
+            "error" : {
+              "$ref" : "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "AadharRequest" : {
+      "type" : "object",
+      "properties" : {
+        "request" : {
+          "type" : "object",
+          "properties" : {
+            "header" : {
+              "$ref" : "#/definitions/reqheader"
+            },
+            "body" : {
+              "type" : "object",
+              "properties" : {
+                "aadharReq" : {
+                  "$ref" : "#/definitions/AadharReq"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "AadharResponse" : {
+      "type" : "object",
+      "properties" : {
+        "response" : {
+          "type" : "object",
+          "properties" : {
+            "header" : {
+              "$ref" : "#/definitions/resheader"
+            },
+            "body" : {
+              "type" : "object",
+              "properties" : {
+                "aadharRes" : {
+                  "type" : "object",
+                  "properties" : {
+                    "return" : {
+                      "type" : "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "VaultTokenReq" : {
+      "type" : "object",
+      "properties" : {
+        "naeUser" : {
+          "type" : "string"
+        },
+        "naePassword" : {
+          "type" : "string"
+        },
+        "dbUser" : {
+          "type" : "string"
+        },
+        "dbPswd" : {
+          "type" : "string"
+        },
+        "tableName" : {
+          "type" : "string"
+        },
+        "tokenProp" : {
+          "type" : "string"
+        }
+      }
+    },
+    "AadharReq" : {
+      "type" : "object",
+      "properties" : {
+        "naeUser" : {
+          "type" : "string"
+        },
+        "naePassword" : {
+          "type" : "string"
+        },
+        "dbUser" : {
+          "type" : "string"
+        },
+        "dbPswd" : {
+          "type" : "string"
+        },
+        "tableName" : {
+          "type" : "string"
+        },
+        "token" : {
+          "type" : "string"
+        },
+        "format" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}
